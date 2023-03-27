@@ -56,6 +56,10 @@ trait DataSourceV2ScanExecBase extends LeafExecNode {
 
   protected def inputPartitions: Seq[InputPartition]
 
+  override def vectorTypes: Option[Seq[String]] = {
+    readerFactory.getVectorTypes
+  }
+
   override def simpleString(maxFields: Int): String = {
     val result =
       s"$nodeName${truncatedString(output, "[", ", ", "]", maxFields)} ${scan.description()}"
