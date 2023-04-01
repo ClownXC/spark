@@ -169,6 +169,7 @@ case class ParquetPartitionReaderFactory(
   }
 
 
+
   override def buildColumnarReader(file: PartitionedFile): PartitionReader[ColumnarBatch] = {
     val fileReader = if (aggregation.isEmpty) {
       val vectorizedReader = createVectorizedReader(file)

@@ -73,14 +73,4 @@ case class CSVPartitionReaderFactory(
       partitionSchema, file.partitionValues)
   }
 
-  override def getVectorTypes: Optional[lang.Iterable[String]] = {
-
-    Option(Seq.fill(readDataSchema.fields.length)(
-      if (!enableOffHeapColumnVector) {
-        classOf[OnHeapColumnVector].getName
-      } else {
-        classOf[OffHeapColumnVector].getName
-      }
-    ) ++ Seq.fill(partitionSchema.fields.length)(classOf[ConstantColumnVector].getName))
-  }
 }

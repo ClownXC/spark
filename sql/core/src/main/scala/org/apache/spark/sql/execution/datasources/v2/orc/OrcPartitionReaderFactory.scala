@@ -24,7 +24,6 @@ import org.apache.hadoop.mapreduce.task.TaskAttemptContextImpl
 import org.apache.orc.{OrcConf, OrcFile, Reader, TypeDescription}
 import org.apache.orc.mapred.OrcStruct
 import org.apache.orc.mapreduce.OrcInputFormat
-
 import org.apache.spark.broadcast.Broadcast
 import org.apache.spark.sql.catalyst.InternalRow
 import org.apache.spark.sql.connector.expressions.aggregate.Aggregation
@@ -33,6 +32,7 @@ import org.apache.spark.sql.execution.WholeStageCodegenExec
 import org.apache.spark.sql.execution.datasources.{AggregatePushDownUtils, PartitionedFile}
 import org.apache.spark.sql.execution.datasources.orc.{OrcColumnarBatchReader, OrcDeserializer, OrcFilters, OrcOptions, OrcUtils}
 import org.apache.spark.sql.execution.datasources.v2._
+import org.apache.spark.sql.execution.vectorized.{ConstantColumnVector, OffHeapColumnVector, OnHeapColumnVector}
 import org.apache.spark.sql.internal.SQLConf
 import org.apache.spark.sql.sources.Filter
 import org.apache.spark.sql.types.StructType
@@ -68,6 +68,17 @@ case class OrcPartitionReaderFactory(
       !WholeStageCodegenExec.isTooManyFields(sqlConf, resultSchema) &&
       resultSchema.forall(s => OrcUtils.supportColumnarReads(
         s.dataType, sqlConf.orcVectorizedReaderNestedColumnEnabled))
+  }
+
+  override def getVectorTypes: Optional[lang.Iterable[String]] = {
+
+    Option(Seq.fill(readDataSchema.fields.length)(
+      if (!sqlConf.offHeapColumnVectorEnabled) {
+        classOf[OnHeapColumnVector].getName
+      } else {
+        classOf[OffHeapColumnVector].getName
+      }
+    ) ++ Seq.fill(partitionSchema.fields.length)(classOf[ConstantColumnVector].getName))
   }
 
   private def pushDownPredicates(orcSchema: TypeDescription, conf: Configuration): Unit = {
