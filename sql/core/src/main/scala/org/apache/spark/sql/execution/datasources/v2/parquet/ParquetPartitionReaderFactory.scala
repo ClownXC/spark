@@ -16,7 +16,6 @@
  */
 package org.apache.spark.sql.execution.datasources.v2.parquet
 
-import java.lang
 import java.time.ZoneId
 import java.util.Optional
 
@@ -28,6 +27,7 @@ import org.apache.parquet.filter2.predicate.{FilterApi, FilterPredicate}
 import org.apache.parquet.format.converter.ParquetMetadataConverter.{NO_FILTER, SKIP_ROW_GROUPS}
 import org.apache.parquet.hadoop.{ParquetInputFormat, ParquetRecordReader}
 import org.apache.parquet.hadoop.metadata.{FileMetaData, ParquetMetadata}
+
 import org.apache.spark.TaskContext
 import org.apache.spark.broadcast.Broadcast
 import org.apache.spark.internal.Logging
@@ -157,9 +157,9 @@ case class ParquetPartitionReaderFactory(
       partitionSchema, file.partitionValues)
   }
 
-  override def getVectorTypes: Optional[lang.Iterable[String]] = {
+  override def getVectorTypes: Optional[java.lang.Iterable[String]] = {
 
-    Option(Seq.fill(readDataSchema.fields.length)(
+    Optional.of(Seq.fill(readDataSchema.fields.length)(
       if (!enableOffHeapColumnVector) {
         classOf[OnHeapColumnVector].getName
       } else {

@@ -16,6 +16,8 @@
  */
 package org.apache.spark.sql.execution.datasources.v2.orc
 
+import java.util.Optional
+
 import org.apache.hadoop.conf.Configuration
 import org.apache.hadoop.fs.Path
 import org.apache.hadoop.mapreduce.{JobID, TaskAttemptID, TaskID, TaskType}
@@ -24,6 +26,7 @@ import org.apache.hadoop.mapreduce.task.TaskAttemptContextImpl
 import org.apache.orc.{OrcConf, OrcFile, Reader, TypeDescription}
 import org.apache.orc.mapred.OrcStruct
 import org.apache.orc.mapreduce.OrcInputFormat
+
 import org.apache.spark.broadcast.Broadcast
 import org.apache.spark.sql.catalyst.InternalRow
 import org.apache.spark.sql.connector.expressions.aggregate.Aggregation
@@ -70,9 +73,9 @@ case class OrcPartitionReaderFactory(
         s.dataType, sqlConf.orcVectorizedReaderNestedColumnEnabled))
   }
 
-  override def getVectorTypes: Optional[lang.Iterable[String]] = {
+  override def getVectorTypes: Optional[java.lang.Iterable[String]] = {
 
-    Option(Seq.fill(readDataSchema.fields.length)(
+    Optional.of(Iterable.fill(readDataSchema.fields.length)(
       if (!sqlConf.offHeapColumnVectorEnabled) {
         classOf[OnHeapColumnVector].getName
       } else {
