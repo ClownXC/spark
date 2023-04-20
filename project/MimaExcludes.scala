@@ -75,6 +75,7 @@ object MimaExcludes {
 
   def excludes(version: String) = version match {
     case v if v.startsWith("3.5") => v35excludes
+    case v if v.startsWith("3.4") => v34excludes
     case _ => Seq()
   }
 }
