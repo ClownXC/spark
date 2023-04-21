@@ -50,6 +50,7 @@ public interface SparkThrowable {
     return SparkThrowableHelper.isInternalError(this.getErrorClass());
   }
 
+  // True if this error is a transient error.
   default boolean isTransientError() {
     return SparkThrowableHelper.isTransientError(this.getErrorClass());
   }

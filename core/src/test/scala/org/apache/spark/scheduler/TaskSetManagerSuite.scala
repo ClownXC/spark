@@ -2220,15 +2220,18 @@ class TaskSetManagerSuite
     assert(sched.taskSetsFailed.isEmpty)
 
     val offerResult = manager.resourceOffer("exec1", "host1", ANY)._1
-    assert(offerResult.isDefined,
-      "Expect resource offer on iteration 0 to return a task")
+    assert(offerResult.isDefined, "Expect resource offer on iteration 0 to return a task")
     assert(offerResult.get.index === 0)
+
     val reason = new ExceptionFailure(
-      new SparkException(
-        "_LEGACY_ERROR_TEMP_2104", Map.empty, null), null)
+      new SparkException("DATATYPE_MISMATCH", Map("sqlExpr" -> "test"), null),
+      null
+    )
     manager.handleFailedTask(offerResult.get.taskId, TaskState.FAILED, reason)
     assert(sched.taskSetsFailed.contains(taskSet.id))
+
   }
+
 
   test("SPARK-30359: don't clean executorsPendingToRemove " +
     "at the beginning of CoarseGrainedSchedulerBackend.reset") {

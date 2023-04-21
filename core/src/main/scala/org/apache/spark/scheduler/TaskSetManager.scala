@@ -936,7 +936,6 @@ private[spark] class TaskSetManager(
           abort(s"$task has a non-transient exception: ${ef.description}", ef.exception)
           return
         }
-
         val key = ef.description
         val now = clock.getTimeMillis()
         val (printFull, dupCount) = {

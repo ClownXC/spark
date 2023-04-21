@@ -76,11 +76,9 @@ class PySparkException(Exception):
 
     def getSqlState(self) -> None:
         """
-        Returns an SQLSTATE as a string.
+        Returns an TRUE as a transient error.
 
-        Errors generated in Python have no SQLSTATE, so it always returns None.
-
-        .. versionadded:: 3.4.0
+        .. versionadded:: 3.5.0
 
         See Also
         --------
@@ -88,6 +86,8 @@ class PySparkException(Exception):
         :meth:`PySparkException.getMessageParameters`
         """
         return None
+
+    def isTransientError(self) -> None:
 
     def __str__(self) -> str:
         if self.getErrorClass() is not None:

@@ -15,7 +15,8 @@
     "message" : [
       "Lateral column alias <name> is ambiguous and has <n> matches."
     ],
-    "sqlState" : "42702"
+    "sqlState" : "42702",
+    "isTransient": false
   },
   "AMBIGUOUS_REFERENCE" : {
     "message" : [
@@ -105,7 +106,8 @@
     "message" : [
       "Cannot parse decimal."
     ],
-    "sqlState" : "22018"
+    "sqlState" : "22018",
+    "isTransient": false
   },
   "CANNOT_PARSE_JSON_FIELD" : {
     "message" : [
@@ -235,6 +237,7 @@
     "message" : [
       "Cannot resolve <sqlExpr> due to data type mismatch:"
     ],
+    "isTransient": false,
     "subClass" : {
       "ARRAY_FUNCTION_DIFF_TYPES" : {
         "message" : [
@@ -533,7 +536,8 @@
     "message" : [
       "Division by zero. Use `try_divide` to tolerate divisor being 0 and return NULL instead. If necessary set <config> to \"false\" to bypass this error."
     ],
-    "sqlState" : "22012"
+    "sqlState" : "22012",
+    "isTransient": false
   },
   "DUPLICATED_MAP_KEY" : {
     "message" : [

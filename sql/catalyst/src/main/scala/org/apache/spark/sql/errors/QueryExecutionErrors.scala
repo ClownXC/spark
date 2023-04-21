@@ -878,7 +878,7 @@ private[sql] object QueryExecutionErrors extends QueryErrorsBase {
       e: Throwable,
       path: String): Throwable = {
     new SparkException(
-      errorClass = "TRANSIENT_LEGACY_ERROR_TEMP_2064",
+      errorClass = "_LEGACY_ERROR_TEMP_2064",
       messageParameters = Map("path" -> path),
       cause = e)
   }
@@ -1117,7 +1117,7 @@ private[sql] object QueryExecutionErrors extends QueryErrorsBase {
 
   def executeBroadcastTimeoutError(timeout: Long, ex: Option[TimeoutException]): Throwable = {
     new SparkException(
-      errorClass = "TRANSIENT_LEGACY_ERROR_TEMP_2097",
+      errorClass = "_LEGACY_ERROR_TEMP_2097",
       messageParameters = Map(
         "timeout" -> timeout.toString(),
         "broadcastTimeout" -> toSQLConf(SQLConf.BROADCAST_TIMEOUT.key),
@@ -1179,21 +1179,21 @@ private[sql] object QueryExecutionErrors extends QueryErrorsBase {
 
   def cannotAllocateMemoryToGrowBytesToBytesMapError(): Throwable = {
     new SparkException(
-      errorClass = "TRANSIENT_LEGACY_ERROR_TEMP_2105",
+      errorClass = "_LEGACY_ERROR_TEMP_2105",
       messageParameters = Map.empty,
       cause = null)
   }
 
   def cannotAcquireMemoryToBuildLongHashedRelationError(size: Long, got: Long): Throwable = {
     new SparkException(
-      errorClass = "TRANSIENT_LEGACY_ERROR_TEMP_2106",
+      errorClass = "_LEGACY_ERROR_TEMP_2106",
       messageParameters = Map("size" -> size.toString(), "got" -> got.toString()),
       cause = null)
   }
 
   def cannotAcquireMemoryToBuildUnsafeHashedRelationError(): Throwable = {
     new SparkOutOfMemoryError(
-      "TRANSIENT_LEGACY_ERROR_TEMP_2107", Collections.emptyMap())
+      "_LEGACY_ERROR_TEMP_2107", Collections.emptyMap())
   }
 
   def rowLargerThan256MUnsupportedError(): SparkUnsupportedOperationException = {
@@ -2383,7 +2383,7 @@ private[sql] object QueryExecutionErrors extends QueryErrorsBase {
       "."
     }
     new SparkException(
-      errorClass = "TRANSIENT_LEGACY_ERROR_TEMP_2250",
+      errorClass = "_LEGACY_ERROR_TEMP_2250",
       messageParameters = Map(
         "autoBroadcastjoinThreshold" -> SQLConf.AUTO_BROADCASTJOIN_THRESHOLD.key,
         "driverMemory" -> SparkLauncher.DRIVER_MEMORY,
@@ -2417,7 +2417,7 @@ private[sql] object QueryExecutionErrors extends QueryErrorsBase {
 
   def failedToReadDataError(failureReason: Throwable): Throwable = {
     new SparkException(
-      errorClass = "TRANSIENT_LEGACY_ERROR_TEMP_2254",
+      errorClass = "_LEGACY_ERROR_TEMP_2254",
       messageParameters = Map.empty,
       cause = failureReason)
   }
@@ -2743,7 +2743,7 @@ private[sql] object QueryExecutionErrors extends QueryErrorsBase {
 
   def invalidBucketFile(path: String): Throwable = {
     new SparkException(
-      errorClass = "TRANSIENT_INVALID_BUCKET_FILE",
+      errorClass = "INVALID_BUCKET_FILE",
       messageParameters = Map("path" -> path),
       cause = null)
   }
