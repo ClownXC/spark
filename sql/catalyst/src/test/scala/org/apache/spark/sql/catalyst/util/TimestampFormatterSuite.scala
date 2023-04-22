@@ -464,12 +464,29 @@ class TimestampFormatterSuite extends DatetimeFormatterSuite {
       locale = DateFormatter.defaultLocale,
       legacyFormat = LegacyDateFormats.SIMPLE_DATE_FORMAT,
       isParsing = true)
-    assert(formatter.parseOptional("2021-01-01T00:00:00").contains(1609488000000000L))
+    val maybeLong: Option[Long] = formatter.parseOptional("2021-01-01T00:00:00")
+    assert(maybeLong.contains(1609488000000000L))
     assert(
       formatter.parseWithoutTimeZoneOptional("2021-01-01T00:00:00", false)
         .contains(1609459200000000L))
     assert(formatter.parseOptional("abc").isEmpty)
     assert(
       formatter.parseWithoutTimeZoneOptional("abc", false).isEmpty)
+  }
+
+  test("SPARK-39193: support returning optional parse results with user-provided format ") {
+    val formatter = TimestampFormatter(
+      "yyyy MM dd HH:mm:ss",
+      UTC,
+      locale = DateFormatter.defaultLocale,
+      legacyFormat = LegacyDateFormats.SIMPLE_DATE_FORMAT,
+      isParsing = true
+    )
+    assert(formatter.parseOptional("2023 04 20 00:00:00").contains(1681948800000000L))
+    assert(
+      formatter.parseWithoutTimeZoneOptional("2023 04 20 00:00:00", false)
+        .contains(1681948800000000L))
+    assert(formatter.parseOptional("2023-04-20T00:00:00").isEmpty)
+    assert(formatter.parseWithoutTimeZoneOptional("2023-04-20T00:00:00", false).isEmpty)
   }
 }

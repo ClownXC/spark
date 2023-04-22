@@ -25,6 +25,8 @@ import java.time.temporal.ChronoField.MICRO_OF_SECOND
 import java.time.temporal.TemporalQueries
 import java.util.{Calendar, GregorianCalendar, Locale, TimeZone}
 
+import scala.util.control.NonFatal
+
 import org.apache.commons.lang3.time.FastDateFormat
 
 import org.apache.spark.sql.catalyst.util.DateTimeConstants._
@@ -34,7 +36,7 @@ import org.apache.spark.sql.catalyst.util.RebaseDateTime._
 import org.apache.spark.sql.errors.QueryExecutionErrors
 import org.apache.spark.sql.internal.SQLConf
 import org.apache.spark.sql.internal.SQLConf.LegacyBehaviorPolicy._
-import org.apache.spark.sql.types.{Decimal, TimestampNTZType}
+import org.apache.spark.sql.types.{Decimal, StringType, TimestampNTZType, TimestampType}
 import org.apache.spark.unsafe.types.UTF8String
 
 sealed trait TimestampFormatter extends Serializable {
@@ -165,6 +167,20 @@ class Iso8601TimestampFormatter(
 
   override def parse(s: String): Long = {
     try {
+      stringToZonedDateTimestamp(s).getOrElse {
+        throw QueryExecutionErrors.invalidInputInCastToDatetimeError(
+          s, StringType, TimestampType, null
+        )
+      }
+    } catch checkParsedDiff(s, legacyFormatter.parse)
+  }
+
+  override def parseOptional(s: String): Option[Long] = {
+    stringToZonedDateTimestamp(s)
+  }
+
+  private def stringToZonedDateTimestamp(s: String): Option[Long] = {
+    try {
       val parsed = formatter.parse(s)
       val parsedZoneId = parsed.query(TemporalQueries.zone())
       val timeZoneId = if (parsedZoneId == null) zoneId else parsedZoneId
@@ -172,20 +188,36 @@ class Iso8601TimestampFormatter(
       val epochSeconds = zonedDateTime.toEpochSecond
       val microsOfSecond = zonedDateTime.get(MICRO_OF_SECOND)
 
-      Math.addExact(Math.multiplyExact(epochSeconds, MICROS_PER_SECOND), microsOfSecond)
+      Some(Math.addExact(Math.multiplyExact(epochSeconds, MICROS_PER_SECOND), microsOfSecond))
+    } catch {
+      case NonFatal(_) => None
+    }
+  }
+  override def parseWithoutTimeZone(s: String, allowTimeZone: Boolean): Long = {
+    try {
+      localDateTimeToMicros(s, allowTimeZone).getOrElse {
+        throw QueryExecutionErrors.cannotParseStringAsDataTypeError(
+          pattern, s, TimestampNTZType
+        )
+      }
     } catch checkParsedDiff(s, legacyFormatter.parse)
   }
 
-  override def parseWithoutTimeZone(s: String, allowTimeZone: Boolean): Long = {
+  override def parseWithoutTimeZoneOptional(s: String, allowTimeZone: Boolean): Option[Long] = {
+    localDateTimeToMicros(s, allowTimeZone)
+  }
+  private def localDateTimeToMicros(s: String, allowTimeZone: Boolean): Option[Long] = {
     try {
       val parsed = formatter.parse(s)
       if (!allowTimeZone && parsed.query(TemporalQueries.zone()) != null) {
-        throw QueryExecutionErrors.cannotParseStringAsDataTypeError(pattern, s, TimestampNTZType)
+        return None
       }
       val localDate = toLocalDate(parsed)
       val localTime = toLocalTime(parsed)
-      DateTimeUtils.localDateTimeToMicros(LocalDateTime.of(localDate, localTime))
-    } catch checkParsedDiff(s, legacyFormatter.parse)
+      Some(DateTimeUtils.localDateTimeToMicros(LocalDateTime.of(localDate, localTime)))
+    } catch {
+      case NonFatal(_) => None
+    }
   }
 
   override def format(instant: Instant): String = {
