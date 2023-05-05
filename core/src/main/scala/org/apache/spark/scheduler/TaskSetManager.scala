@@ -21,7 +21,6 @@ import java.io.NotSerializableException
 import java.nio.ByteBuffer
 import java.util.concurrent.{ConcurrentHashMap, ConcurrentLinkedQueue, TimeUnit}
 
-import scala.collection.immutable.Map
 import scala.collection.mutable.{ArrayBuffer, HashMap, HashSet}
 import scala.math.max
 import scala.util.control.NonFatal
@@ -936,7 +935,6 @@ private[spark] class TaskSetManager(
           abort(s"$task has a non-transient exception: ${ef.description}", ef.exception)
           return
         }
-
         val key = ef.description
         val now = clock.getTimeMillis()
         val (printFull, dupCount) = {
