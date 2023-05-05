@@ -75,6 +75,14 @@ class UtilsTests(ReusedSQLTestCase):
             self.assertEquals(e.getErrorClass(), "UNRESOLVED_COLUMN.WITHOUT_SUGGESTION")
             self.assertEquals(e.getSqlState(), "42703")
 
+    def test_is_transient_error(self):
+        # SPARK-36953: test CapturedException.getErrorClass and _is_transient_error (from SparkThrowable)
+        try:
+            self.spark.sql("""SELECT a""")
+        except AnalysisException as e:
+            self.assertEquals(e.getErrorClass(), "UNRESOLVED_COLUMN.WITHOUT_SUGGESTION")
+            self.assertEquals(e.isTransientError(), False)
+
 
 if __name__ == "__main__":
     import unittest
