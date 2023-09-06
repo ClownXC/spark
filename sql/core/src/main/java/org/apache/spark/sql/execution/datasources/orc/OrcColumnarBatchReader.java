@@ -183,6 +183,7 @@ public class OrcColumnarBatchReader extends RecordReader<Void, ColumnarBatch> {
           Object defaultValue = ResolveDefaultColumns.existenceDefaultValues(requiredSchema)[i];
           if (defaultValue == null) {
             missingCol.putNulls(0, capacity);
+            missingCol.setAllNull();
           } else if (!missingCol.appendObjects(capacity, defaultValue).isPresent()) {
             throw new IllegalArgumentException("Cannot assign default column value to result " +
               "column batch in vectorized Orc reader because the data type is not supported: " +

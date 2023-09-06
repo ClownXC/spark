@@ -200,23 +200,23 @@ object ParquetUtils extends Logging {
    */
   def isBatchReadSupportedForSchema(sqlConf: SQLConf, schema: StructType): Boolean =
     sqlConf.parquetVectorizedReaderEnabled &&
-      schema.forall(f => isBatchReadSupported(sqlConf, f.dataType))
+      schema.forall(f => isBatchReadSupported(sqlConf.parquetVectorizedReaderNestedColumnEnabled, f.dataType))
 
-  def isBatchReadSupported(sqlConf: SQLConf, dt: DataType): Boolean = dt match {
+  def isBatchReadSupported(nestedColumnEnabled: Boolean, dt: DataType): Boolean = dt match {
     case _: AtomicType =>
       true
     case at: ArrayType =>
-      sqlConf.parquetVectorizedReaderNestedColumnEnabled &&
-        isBatchReadSupported(sqlConf, at.elementType)
+      nestedColumnEnabled &&
+        isBatchReadSupported(nestedColumnEnabled, at.elementType)
     case mt: MapType =>
-      sqlConf.parquetVectorizedReaderNestedColumnEnabled &&
-        isBatchReadSupported(sqlConf, mt.keyType) &&
-        isBatchReadSupported(sqlConf, mt.valueType)
+      nestedColumnEnabled &&
+        isBatchReadSupported(nestedColumnEnabled, mt.keyType) &&
+        isBatchReadSupported(nestedColumnEnabled, mt.valueType)
     case st: StructType =>
-      sqlConf.parquetVectorizedReaderNestedColumnEnabled &&
-        st.fields.forall(f => isBatchReadSupported(sqlConf, f.dataType))
+      nestedColumnEnabled &&
+        st.fields.forall(f => isBatchReadSupported(nestedColumnEnabled, f.dataType))
     case udt: UserDefinedType[_] =>
-      isBatchReadSupported(sqlConf, udt.sqlType)
+      isBatchReadSupported(nestedColumnEnabled, udt.sqlType)
     case _ =>
       false
   }
